@@ -65,8 +65,7 @@ class FG_eval {
 	}
 	for (int i = 0; i< N-2 ;i++)
 	{
-		// got the value of 1500 through trial and error..kept increasing it from 500, this looks ok now.
-		fg[0] += 1500*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2);
+		fg[0] += 200*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2);
 		fg[0] += CppAD::pow(vars[a_start+i+1] - vars[a_start+i],2);
 	}
 
@@ -166,14 +165,14 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
 	for(int i=delta_start ;i<a_start;i++)
 	{
-		vars_lowerbound[i] = -0.436332;
-		vars_upperbound[i] = 0.436332;
+		vars_lowerbound[i] = -1.0;
+		vars_upperbound[i] = 1.0;
 	}
 
 	for(int i=a_start ;i<n_vars;i++)
 	{
-		vars_lowerbound[i] = -1.0;
-		vars_upperbound[i] = 1.0;
+		vars_lowerbound[i] = -0.436332;
+		vars_upperbound[i] = 0.436332;
 	}
 
 	// Lower and upper limits for the constraints

@@ -1,0 +1,53 @@
+Writeup for the MPC Project:
+
+-------------------------------------------------------------------------------------------
+
+Ref Video used: 
+https://www.youtube.com/watch?v=bOQuhpz3YfU&list=PLAwxTw4SYaPnfR7TzRZN-uxlxGbqxhtm2&index=5
+
+-------------------------------------------------------------------------------------------
+
+main.cpp:
+
+Algorithm:
+ 1. Read the following values from simulator:
+	a. pstx/psty (weight points).
+	b. x and y.
+	c. psi (angle) and v (speed). Perform speed conversion (MPH).
+	d. Steering angle and acceleration (throttle).
+ 2. Adjust the x/y/psi and v for latency (100ms).
+ 3. Covert the pstx and psty from Vector double to Vector2D.
+ 4. Calculate the coefficients or the path.
+ 5. Calculate cte and error psi (epsi).
+ 6. Now we define the state and pass it to the MPC.solve function along with the coeffients.
+ 7. Record the values on steering angle and acceleration. 
+ 8. Display the reference line.
+ 9. Display the mpc predicted x and y points/trajectory.
+10. Pass the information to the simulator.
+
+-------------------------------------------------------------------------------------------
+
+MPC.cpp:
+
+N and dt:
+1. Values of N and dt used the same as mentioned in the QnA of the video mentioned above. 
+2. I played with the values and could get it working for higher values of dt as well (.15, .2). 
+3. But for submission, I am continuing with the same values as mentioned in the QnA Video.
+
+ref_v:
+1. I was facing values with very higher car speed. The car did some over/under steering at higher car speed.
+2. I reduced the value of this so that car does not over/under steer.
+3. Setting this between 25-50 works pretty ok. But I have kept it to 30 and the car could reach speed as high as 50+ MPH. 
+
+Multipliers for the cost function:
+1. As mentioned by mentor (https://discussions.udacity.com/t/tuning-multipliers-for-costs/328141/2), we need multipliers for epsi higher than cte.
+2. I tried multiple values (increamenting from 500) for epsi (keeping cte to 1).
+3. With the value of 3000, I found the car drove well. Hence keeping it to 3000.
+4. I am not changing other multipliers for the cost function as with above expriment, the car drove in track without too much of oscilation.
+
+Solve function:
+1. I did not change anything as it seems to be working for me.
+
+
+
+

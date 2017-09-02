@@ -113,25 +113,28 @@ int main() {
 			psi += - (v * steer_value/Lf*latency);
 			v += (throttle_value*latency);
 
-
+			//shift car reference angle to 90 degree
 			for(int i =0; i< ptsx.size(); i++)
 			{
-				//shift car reference angle to 90 degree
+				// substract all the points from current position.
 				double shift_x = ptsx[i] -px;
 	  			double shift_y = ptsy[i] -py;
+				// Rotate about the origin.
 				ptsx[i] = (shift_x * cos(0-psi) - shift_y * sin(0-psi));
 				ptsy[i] = (shift_x * sin(0-psi) + shift_y * cos(0-psi));
-       	   	}
+       	   		}
 
 
-		double *ptrx = &ptsx[0];
-		double *ptry = &ptsy[0];
+			// Convert from Vector double to VectorXd
+			double *ptrx = &ptsx[0];
+			double *ptry = &ptsy[0];
 		Eigen::Map<Eigen::VectorXd> ptsx_transform(ptrx,6);
-		Eigen::Map<Eigen::VectorXd> ptsy_transform(ptry,6);
+			Eigen::Map<Eigen::VectorXd> ptsy_transform(ptry,6);
 
+		// Calculate the co-efficients/path
+		auto coeffs = polyfit(ptsx_transform,ptsy_transform,3);  // 3rd order polynomial.
 
-		auto coeffs = polyfit(ptsx_transform,ptsy_transform,3);
-
+		// Calcuate cte (shortest distance of car to point  in polynomial) and error psi (epsi))
 		double cte = polyeval(coeffs,0);
 		double epsi = psi - atan(coeffs[1]);
 
@@ -139,7 +142,7 @@ int main() {
 		cte = cte + ( v * sin(epsi) * latency);
 		epsi = epsi + ( v * steer_value/Lf * latency);
 
-
+		// Define the state.
 		Eigen::VectorXd state(6);
 		state << 0,0,0,v,cte,epsi;
 
@@ -173,39 +176,39 @@ int main() {
 				mpc_y_vals.push_back(vars[i]);
 
 
-          json msgJson;
-          // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
-          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
- 	  msgJson["steering_angle"] = -steer_value/deg2rad(25);
-  	  msgJson["throttle"] = throttle_value;
+        	json msgJson;
+	        // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
+       		// Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
+ 	  	msgJson["steering_angle"] = -steer_value/deg2rad(25);
+  	  	msgJson["throttle"] = throttle_value;
 
-          //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
-          // the points in the simulator are connected by a Green line
+          	//.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
+          	// the points in the simulator are connected by a Green line
 
-          msgJson["mpc_x"] = mpc_x_vals;
-          msgJson["mpc_y"] = mpc_y_vals;
+          	msgJson["mpc_x"] = mpc_x_vals;
+          	msgJson["mpc_y"] = mpc_y_vals;
+	
+
+          	//.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
+          	// the points in the simulator are connected by a Yellow line
+
+          	msgJson["next_x"] = next_x_vals;
+          	msgJson["next_y"] = next_y_vals;
 
 
-          //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
-          // the points in the simulator are connected by a Yellow line
-
-          msgJson["next_x"] = next_x_vals;
-          msgJson["next_y"] = next_y_vals;
-
-
-          auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
-          // Latency
-          // The purpose is to mimic real driving conditions where
-          // the car does actuate the commands instantly.
-          //
-          // Feel free to play around with this value but should be to drive
-          // around the track with 100ms latency.
-          //
-          // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
-          // SUBMITTING.
-          this_thread::sleep_for(chrono::milliseconds(100));
-          ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+          	auto msg = "42[\"steer\"," + msgJson.dump() + "]";
+          	std::cout << msg << std::endl;
+          	// Latency
+          	// The purpose is to mimic real driving conditions where
+          	// the car does actuate the commands instantly.
+          	//
+          	// Feel free to play around with this value but should be to drive
+          	// around the track with 100ms latency.
+          	//
+          	// NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
+          	// SUBMITTING.
+          	this_thread::sleep_for(chrono::milliseconds(100));
+          	ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
         // Manual driving
