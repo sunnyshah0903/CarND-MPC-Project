@@ -16,6 +16,10 @@ Algorithm:
 	c. psi (angle) and v (speed). Perform speed conversion (MPH).
 	d. Steering angle and acceleration (throttle).
  2. Adjust the x/y/psi and v for latency (100ms).
+    For latency I am following forum mentors discussion on thread here:
+https://discussions.udacity.com/t/how-to-incorporate-latency-into-the-model/257391/4
+    Accordingly, we calculate the cars new x/y and psi at the latency time.
+    We feed these values to the solve function; so that we have values that are at 100ms in the future. 
  3. Covert the pstx and psty from Vector double to Vector2D.
  4. Calculate the coefficients or the path.
  5. Calculate cte and error psi (epsi).
